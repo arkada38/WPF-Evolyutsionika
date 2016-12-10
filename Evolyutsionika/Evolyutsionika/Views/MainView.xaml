@@ -2,13 +2,37 @@
     x:Class="Evolyutsionika.Views.MainView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ViewModels="clr-namespace:Evolyutsionika.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Evolyutsionika"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:properties="clr-namespace:Evolyutsionika.Properties"
     Title="Evolyutsionika"
-    Width="525"
-    Height="350"
+    Width="{Binding Source={x:Static properties:Settings.Default}, Path=Width, Mode=TwoWay}"
+    Height="{Binding Source={x:Static properties:Settings.Default}, Path=Height, Mode=TwoWay}"
     Icon="/Evolyutsionika;component/Assets/icon.ico"
-    mc:Ignorable="d">
-    <Grid />
+    Left="{Binding Source={x:Static properties:Settings.Default}, Path=Left, Mode=TwoWay}"
+    Top="{Binding Source={x:Static properties:Settings.Default}, Path=Top, Mode=TwoWay}"
+    WindowState="{Binding Source={x:Static properties:Settings.Default}, Path=WindowState, Mode=TwoWay}">
+    <Window.DataContext>
+        <ViewModels:MainViewModel />
+    </Window.DataContext>
+    <Grid>
+        <TextBox
+            x:Name="textBox"
+            Width="120"
+            Height="23"
+            Margin="10,10,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Text="{Binding SomeString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            TextWrapping="Wrap" />
+        <TextBlock
+            x:Name="textBlock"
+            Margin="10,38,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Text="{Binding SomeString}"
+            TextWrapping="Wrap" Width="120" />
+    </Grid>
 </Window>
