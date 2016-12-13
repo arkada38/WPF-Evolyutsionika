@@ -14,25 +14,24 @@
     Left="{Binding Source={x:Static properties:Settings.Default}, Path=Left, Mode=TwoWay}"
     Top="{Binding Source={x:Static properties:Settings.Default}, Path=Top, Mode=TwoWay}"
     WindowState="{Binding Source={x:Static properties:Settings.Default}, Path=WindowState, Mode=TwoWay}">
+
     <Window.DataContext>
         <ViewModels:MainViewModel />
     </Window.DataContext>
+
     <Grid>
-        <TextBox
-            x:Name="textBox"
-            Width="120"
-            Height="23"
-            Margin="10,10,0,0"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Text="{Binding SomeString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            TextWrapping="Wrap" />
-        <TextBlock
-            x:Name="textBlock"
-            Margin="10,38,0,0"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Top"
-            Text="{Binding SomeString}"
-            TextWrapping="Wrap" Width="120" />
+        <Grid x:Name="Field" Margin="10,10,10,45" Background="#FFF9F6DA" />
+
+        <StatusBar VerticalAlignment="Bottom">
+            <TextBlock TextWrapping="Wrap"
+                   FontSize="18" Margin="5">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0}x{1}">
+                        <Binding Path="ActualWidth" ElementName="Field" />
+                        <Binding Path="ActualHeight" ElementName="Field" />
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </StatusBar>
     </Grid>
 </Window>
