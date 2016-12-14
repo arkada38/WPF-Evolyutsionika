@@ -1,4 +1,4 @@
-using Evolyutsionika.Models;
+﻿using Evolyutsionika.Models;
 using Evolyutsionika.Views;
 using GalaSoft.MvvmLight;
 using System;
@@ -15,19 +15,7 @@ namespace Evolyutsionika.ViewModels
     public class MainViewModel : ViewModelBase
     {
         #region Fields and Properties
-        private static readonly Random R = new Random(DateTime.Now.Millisecond);
-
-        string _SomeString;
-        public string SomeString
-        {
-            get { return _SomeString; }
-            set
-            {
-                if (value == _SomeString) return;
-                _SomeString = value;
-                RaisePropertyChanged(nameof(SomeString));
-            }
-        }
+        private static readonly Random R = new Random(1);
 
         MainView _View;
         public MainView View
@@ -39,6 +27,31 @@ namespace Evolyutsionika.ViewModels
                 _View = value;
                 RaisePropertyChanged(nameof(View));
                 Field = View.Field;
+                Field.SizeChanged += FieldSizeChanged;
+            }
+        }
+
+        int _Rows = 100;
+        public int Rows
+        {
+            get { return _Rows; }
+            set
+            {
+                if (value == _Rows) return;
+                _Rows = value;
+                RaisePropertyChanged(nameof(Rows));
+            }
+        }
+
+        int _Columns = 100;
+        public int Columns
+        {
+            get { return _Columns; }
+            set
+            {
+                if (value == _Columns) return;
+                _Columns = value;
+                RaisePropertyChanged(nameof(Columns));
             }
         }
 
@@ -66,69 +79,40 @@ namespace Evolyutsionika.ViewModels
                 RaisePropertyChanged(nameof(Predators));
             }
         }
-
-        ObservableCollection<Ellipse> _Cells;
-        public ObservableCollection<Ellipse> Cells
-        {
-            get { return _Cells; }
-            set
-            {
-                if (value == _Cells) return;
-                _Cells = value;
-                RaisePropertyChanged(nameof(Cells));
-            }
-        }
         #endregion
 
         public MainViewModel()
         {
             Predators = new ObservableCollection<Predator>
             {
-                new Predator
-                {
-                    Left = 100, Top = 100, Health = 100, FillColour = "Green"
-                },
-                new Predator
-                {
-                    Left = 150, Top = 150, Health = 100, FillColour = "Red"
-                }
+                new Predator { Row = R.Next(0, Rows), Column = R.Next(0, Columns), Health = 100, FillColour = Colors.Green },
+                new Predator { Row = R.Next(0, Rows), Column = R.Next(0, Columns), Health = 50, FillColour = Colors.Green },
+                new Predator { Row = R.Next(0, Rows), Column = R.Next(0, Columns), Health = 70, FillColour = Colors.Green },
+                new Predator { Row = R.Next(0, Rows), Column = R.Next(0, Columns), Health = 30, FillColour = Colors.Green }
             };
         }
 
+        #region Methods
         private void CreateField()
         {
-            var n = 150;
-
             // Create Rows
-            for (var i = 0; i < n; i++)
+            for (var i = 0; i < Rows; i++)
                 Field.RowDefinitions.Add(new RowDefinition());
 
             // Create Columns
-            for (var i = 0; i < n; i++)
+            for (var i = 0; i < Columns; i++)
                 Field.ColumnDefinitions.Add(new ColumnDefinition());
 
-            // Create Cells
-            Cells = new ObservableCollection<Ellipse>();
-            for (var i = 0; i < n; i++)
+            // Draw Predators
+            foreach (var predator in Predators)
             {
-                for (var j = 0; j < n; j++)
-                {
-                    var blueBrush = new SolidColorBrush();
-                    blueBrush.Color = Colors.LightBlue;
-
-                    var ellipse = new Ellipse();
-                    ellipse.Fill = blueBrush;
-                    Grid.SetRow(ellipse, i);
-                    Grid.SetColumn(ellipse, j);
-                    Field.Children.Add(ellipse);
-                    Cells.Add(ellipse);
-                }
+                Field.Children.Add(predator.Body);
             }
 
             var timer = new Timer();
 
             timer.Elapsed += OnTimedEvent;
-            timer.Interval = 10;
+            timer.Interval = 500;
             timer.Enabled = true;
         }
 
@@ -137,13 +121,47 @@ namespace Evolyutsionika.ViewModels
             Application.Current.Dispatcher.BeginInvoke(
                     DispatcherPriority.Background,
                     new Action(() =>
-                    Cells[R.Next(0, Cells.Count)].Fill = new SolidColorBrush(Color.FromArgb(255, GetRandomByte(), GetRandomByte(), GetRandomByte()))
+                    {
+                        var predator = Predators[R.Next(0, Predators.Count)];
+                        predator.Row = R.Next(0, Rows);
+                        predator.Column = R.Next(0, Columns);
+                    }
                     ));
         }
 
-        private static byte GetRandomByte()
+        private int GetCellIndex(int row, int column)
         {
-            return (byte)R.Next(0, 256);
+            while (row >= Rows)
+                row -= Rows;
+            while (row < 0)
+                row += Rows;
+
+            while (column >= Rows)
+                column -= Rows;
+            while (column < 0)
+                column += Rows;
+
+            return column * Rows + row;
         }
+
+        private void FieldSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Rows = (int)Field.ActualHeight / 20;
+            Field.RowDefinitions.Clear();
+
+            Columns = (int)Field.ActualWidth / 20;
+            Field.ColumnDefinitions.Clear();
+            
+            // Create Rows
+            for (var i = 0; i < Rows; i++)
+                Field.RowDefinitions.Add(new RowDefinition());
+
+            // Create Columns
+            for (var i = 0; i < Columns; i++)
+                Field.ColumnDefinitions.Add(new ColumnDefinition());
+
+            // TODO: Переместить хищников
+        }
+        #endregion
     }
 }
