@@ -46,7 +46,7 @@ namespace Evolyutsionika.Models
 
                 var brush = new SolidColorBrush();
                 brush.Color = value;
-                Body.Fill = brush;
+                Rectangle.Fill = brush;
 
                 RaisePropertyChanged(nameof(FillColour));
             }
@@ -58,22 +58,82 @@ namespace Evolyutsionika.Models
             get { return _Health; }
             set
             {
-                if (value == _Health) return;
+                if (_Health == value) return;
                 _Health = Math.Max(0, Math.Min(value, 100));
-                Body.Opacity = Health / 100.0;
+
+                Rectangle.Opacity = Health / 100.0;
+                TextBlock.Text = _Health.ToString();
+
                 RaisePropertyChanged(nameof(Health));
             }
         }
 
-        Rectangle _Body;
-        public Rectangle Body
+        Grid _Body;
+        public Grid Body
         {
-            get { return _Body ?? (_Body = new Rectangle()); }
+            get
+            {
+                if (_Body == null)
+                {
+                    _Body = new Grid();
+                    _Body.Children.Add(Rectangle);
+                    _Body.Children.Add(TextBlock);
+                }
+                return _Body;
+            }
             set
             {
                 if (value == _Body) return;
                 _Body = value;
                 RaisePropertyChanged(nameof(Body));
+            }
+        }
+
+        Rectangle _Rectangle;
+        private Rectangle Rectangle
+        {
+            get
+            {
+                if (_Rectangle == null)
+                {
+                    var brush = new SolidColorBrush();
+                    brush.Color = Colors.DarkRed;
+
+                    _Rectangle = new Rectangle();
+                    _Rectangle.StrokeThickness = 4;
+                    _Rectangle.Stroke = brush;
+
+                    _Rectangle.RadiusX = 8;
+                    _Rectangle.RadiusY = 8;
+                }
+                return _Rectangle;
+            }
+            set
+            {
+                if (value == _Rectangle) return;
+                _Rectangle = value;
+                RaisePropertyChanged(nameof(Rectangle));
+            }
+        }
+
+        TextBlock _TextBlock;
+        private TextBlock TextBlock
+        {
+            get
+            {
+                if (_TextBlock == null)
+                {
+                    _TextBlock = new TextBlock();
+                    _TextBlock.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+                    _TextBlock.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+                }
+                return _TextBlock;
+            }
+            set
+            {
+                if (value == _TextBlock) return;
+                _TextBlock = value;
+                RaisePropertyChanged(nameof(TextBlock));
             }
         }
         #endregion

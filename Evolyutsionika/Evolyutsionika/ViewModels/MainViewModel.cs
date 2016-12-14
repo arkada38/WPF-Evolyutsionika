@@ -16,6 +16,7 @@ namespace Evolyutsionika.ViewModels
     {
         #region Fields and Properties
         private static readonly Random R = new Random(1);
+        private static readonly int SizeOfCell = 32;
 
         MainView _View;
         public MainView View
@@ -125,6 +126,7 @@ namespace Evolyutsionika.ViewModels
                         var predator = Predators[R.Next(0, Predators.Count)];
                         predator.Row = R.Next(0, Rows);
                         predator.Column = R.Next(0, Columns);
+                        predator.Health -= 1;
                     }
                     ));
         }
@@ -146,10 +148,10 @@ namespace Evolyutsionika.ViewModels
 
         private void FieldSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Rows = (int)Field.ActualHeight / 20;
+            Rows = (int)Field.ActualHeight / SizeOfCell;
             Field.RowDefinitions.Clear();
 
-            Columns = (int)Field.ActualWidth / 20;
+            Columns = (int)Field.ActualWidth / SizeOfCell;
             Field.ColumnDefinitions.Clear();
             
             // Create Rows
@@ -160,7 +162,12 @@ namespace Evolyutsionika.ViewModels
             for (var i = 0; i < Columns; i++)
                 Field.ColumnDefinitions.Add(new ColumnDefinition());
 
-            // TODO: Переместить хищников
+            // Replace predators
+            foreach (var predator in Predators)
+            {
+                predator.Row = R.Next(0, Rows);
+                predator.Column = R.Next(0, Columns);
+            }
         }
         #endregion
     }
